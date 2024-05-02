@@ -3,21 +3,36 @@ package com.sd.holidays.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.activity.viewModels
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import com.sd.holidays.ui.theme.HolidaysTheme
+import com.sd.holidays.viewmodel.MainViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+ //   private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             HolidaysTheme {
-
+                val selectedCountry = remember {
+                    mutableStateOf("")
+                }
+//                val listCountries = remember {
+//                    mutableStateOf(emptyList<String>())
+//                }
+//                viewModel.dataCountry.observe(this) {
+//                    listCountries.value = it
+//                }
+            Drawer(
+                context = this,
+          //      listCountries,
+              //  viewModel,
+               )
             }
         }
     }
