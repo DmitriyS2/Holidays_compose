@@ -5,6 +5,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,11 +26,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,9 +61,13 @@ fun Drawer(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val listCountries by vm.dataCountry.observeAsState()
+  //  val listCountries by vm.dataCountry.observeAsState()
     val modelListCountries by vm.dataModelCountry.observeAsState()
     var selectedCountry = ""
+
+    val searchText = remember {
+        mutableStateOf("")
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -136,7 +145,9 @@ fun Drawer(
                         verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                     ){
-                        Box() {CircularProgressIndicator()}
+                        Box() {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
 
@@ -157,27 +168,53 @@ fun Drawer(
 
                 else -> {
                     Log.d("MyLog", "else")
-                    LazyColumn() {
-                        itemsIndexed(listCountries ?: emptyList()) { _, item ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(5.dp)
-                                    .clickable {
-                                        selectedCountry = item
-                                        scope.launch {
-                                            drawerState.open()
-                                        }
-                                    }
-                            ) {
-                                Text(
-                                    text = item,
-                                    fontSize = 26.sp,
+                    Column(Modifier.fillMaxSize()) {
+
+                    SearchBar(
+                        query = searchText.value,
+                        onQueryChange = { text ->
+                                        searchText.value = text
+                            vm.searchCountry(text)
+                        },
+                        placeholder = {
+                                      Text(text = "Введите название страны")
+                        },
+                        onSearch = {
+
+                        },
+                        active = false,
+                        onActiveChange = {
+
+                        }
+                    ) {
+
+                    }
+                        Spacer(modifier = Modifier.height(25.dp))
+                        LazyColumn() {
+                       //     itemsIndexed(listCountries ?: emptyList()) { _, item ->
+                                itemsIndexed(modelListCountries?.listCountry ?: emptyList()) { _, item ->
+                                Card(
                                     modifier = Modifier
-                                        .padding(vertical = 15.dp)
-                                        .fillMaxWidth(),
-                                    textAlign = TextAlign.Center
-                                )
+                                        .fillMaxWidth()
+                                        .padding(5.dp)
+                                        .clickable {
+                                            vm.searchCountry("")
+                                            searchText.value = ""
+                                            selectedCountry = item
+                                            scope.launch {
+                                                drawerState.open()
+                                            }
+                                        }
+                                ) {
+                                    Text(
+                                        text = item,
+                                        fontSize = 26.sp,
+                                        modifier = Modifier
+                                            .padding(vertical = 15.dp)
+                                            .fillMaxWidth(),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                             }
                         }
                     }

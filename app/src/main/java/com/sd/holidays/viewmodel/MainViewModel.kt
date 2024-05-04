@@ -19,9 +19,11 @@ class MainViewModel @Inject constructor(
     private val repository: Repository
 ) : ViewModel() {
 
-    private val _dataCountry = MutableLiveData<List<String>>(emptyList())
-    val dataCountry: LiveData<List<String>>
-        get() = _dataCountry
+//    private val _dataCountry = MutableLiveData<List<String>>(emptyList())
+//    val dataCountry: LiveData<List<String>>
+//        get() = _dataCountry
+
+    private var originListCountry:List<String> = emptyList()
 
     private val _dataModelCountry = MutableLiveData<ModelCountryCode>()
     val dataModelCountry:LiveData<ModelCountryCode>
@@ -45,13 +47,16 @@ class MainViewModel @Inject constructor(
                 _dataModelCountry.value = ModelCountryCode(loading = true)
                 val temp = repository.loadDataCountry()
                 if (temp.isNotEmpty()) {
-
-                _dataModelCountry.value = ModelCountryCode(listCountry = temp.map{
-                    it.name
-                })
-                _dataCountry.value = temp.map {
-                    it.name
-                }
+                    originListCountry = temp.map {
+                        it.name
+                    }
+//                _dataModelCountry.value = ModelCountryCode(listCountry = temp.map{
+//                    it.name
+//                })
+                    _dataModelCountry.value = ModelCountryCode(listCountry = originListCountry)
+//                _dataCountry.value = temp.map {
+//                    it.name
+//                }
                 temp.forEach {
                     //     _mapCountry[it.countryCode] = it.name
                     _mapCountry[it.name] = it.countryCode
@@ -61,7 +66,7 @@ class MainViewModel @Inject constructor(
                 }
                 //     Log.d("MyLog", "$_mapCountry")
             } catch (e: Exception) {
-                _dataCountry.value = emptyList()
+           //     _dataCountry.value = emptyList()
                 _dataModelCountry.value = ModelCountryCode(error = true)
             }
         }
@@ -94,5 +99,11 @@ class MainViewModel @Inject constructor(
                 _infoCountry.value = ModelInfoAboutCountry(error = true)
             }
         }
+    }
+
+    fun searchCountry(text:String) {
+        _dataModelCountry.value = ModelCountryCode(listCountry = originListCountry.filter {
+            it.lowercase().startsWith(text.lowercase())
+        })
     }
 }
