@@ -37,6 +37,10 @@ class MainViewModel @Inject constructor(
     val infoCountry:LiveData<ModelInfoAboutCountry>
         get() = _infoCountry
 
+    private var _selectedCountry = ""
+    val selectedCountry:String
+        get() = _selectedCountry
+
     init {
         loadDataCountry()
     }
@@ -105,5 +109,9 @@ class MainViewModel @Inject constructor(
         _dataModelCountry.value = ModelCountryCode(listCountry = originListCountry.filter {
             it.lowercase().startsWith(text.lowercase())
         })
+    }
+
+    fun changeSelectedCountry(name:String) {
+        _selectedCountry = name
     }
 }

@@ -4,6 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.mutableStateOf
@@ -45,10 +49,21 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = "drawer"
                     ) {
-                        composable("drawer") {
+                        composable("drawer",
+                            enterTransition = { slideInHorizontally(animationSpec =  tween(durationMillis = 1000)) },
+                            exitTransition = { slideOutHorizontally (animationSpec = tween(durationMillis = 1000))},
+                            popEnterTransition = { slideInHorizontally()},
+                            popExitTransition = { slideOutHorizontally()}
+                        ){
                             Drawer(context = this@MainActivity, vm, navController)
                         }
-                        composable("info") {
+                        composable("info",
+                                enterTransition = { slideInHorizontally(animationSpec =  tween(durationMillis = 1000)) },
+                            exitTransition = { slideOutHorizontally (animationSpec = tween(durationMillis = 1000))},
+                            popEnterTransition = { slideInHorizontally()},
+                            popExitTransition = { slideOutHorizontally()}
+                        ) {
+
                             InfoCountry(vm, navController)
                         }
                     }
