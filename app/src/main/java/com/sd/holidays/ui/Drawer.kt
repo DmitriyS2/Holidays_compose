@@ -5,8 +5,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,10 +38,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,6 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.sd.holidays.R
 import com.sd.holidays.viewmodel.MainViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,13 +61,15 @@ fun Drawer(
 //    listCountries: MutableState<List<String>>,
     //   viewModel: MainViewModel,
     vm: MainViewModel = viewModel(),
-    navController: NavController
+    navController: NavController,
+    keyboardController: SoftwareKeyboardController?,
+    focusManager: FocusManager
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
+//    val keyboardController = LocalSoftwareKeyboardController.current
+//    val focusManager = LocalFocusManager.current
 
     //  val listCountries by vm.dataCountry.observeAsState()
     val modelListCountries by vm.dataModelCountry.observeAsState()
@@ -104,12 +106,12 @@ fun Drawer(
 //                            "Информация ${vm.mapCountry[vm.selectedCountry]}",
 //                            Toast.LENGTH_SHORT
 //                        ).show()
-                        navController.navigate("info")
+
+                        vm.getInfoAboutCountry(vm.mapCountry[vm.selectedCountry])
                         scope.launch {
                             drawerState.close()
+                            navController.navigate("info")
                         }
-                        vm.getInfoAboutCountry(vm.mapCountry[vm.selectedCountry])
-
                     })
                 NavigationDrawerItem(
                     label = {
@@ -120,6 +122,7 @@ fun Drawer(
                         Toast.makeText(context, "Выходные", Toast.LENGTH_SHORT).show()
                         scope.launch {
                             drawerState.close()
+                            navController.navigate("longWeekEnd")
                         }
                     })
                 NavigationDrawerItem(
@@ -149,7 +152,7 @@ fun Drawer(
         content = {
             when {
                 modelListCountries?.loading == true -> {
-                    Log.d("MyLog", "loading")
+                    Log.d("MyLog", "loading drawer")
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
@@ -162,7 +165,7 @@ fun Drawer(
                 }
 
                 modelListCountries?.error == true -> {
-                    Log.d("MyLog", "error")
+                    Log.d("MyLog", "error drawer")
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
@@ -178,7 +181,7 @@ fun Drawer(
                 }
 
                 else -> {
-                    Log.d("MyLog", "else")
+                    Log.d("MyLog", "else drawer")
                     Column(Modifier.fillMaxSize()) {
 
                         SearchBar(
@@ -221,9 +224,10 @@ fun Drawer(
                                             searchText.value = ""
                                             vm.changeSelectedCountry(item)
                                             scope.launch {
+                                                keyboardController?.hide()
+                                                delay(500)
                                                 drawerState.open()
                                             }
-                                            keyboardController?.hide()
                                         }
                                 ) {
                                     Text(

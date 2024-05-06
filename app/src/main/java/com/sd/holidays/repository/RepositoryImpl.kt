@@ -2,6 +2,7 @@ package com.sd.holidays.repository
 
 import com.sd.holidays.api.ApiService
 import com.sd.holidays.dto.CountryCode
+import com.sd.holidays.dto.DataLongWeekEnd
 import com.sd.holidays.dto.InfoAboutCountry
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,6 +36,20 @@ class RepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
             return InfoAboutCountry()
+        }
+    }
+
+    override suspend fun getLongWeekEnd(year: String, code: String): List<DataLongWeekEnd> {
+        try {
+            val response = apiService.getLongWeekEnd(year, code)
+            if (!response.isSuccessful) {
+                return listOf()
+            }
+            val body = response.body()
+            return body ?: listOf()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return listOf()
         }
     }
 }
