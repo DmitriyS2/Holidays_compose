@@ -57,9 +57,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Drawer(
-    context: Context,
-//    listCountries: MutableState<List<String>>,
-    //   viewModel: MainViewModel,
     vm: MainViewModel = viewModel(),
     navController: NavController,
     keyboardController: SoftwareKeyboardController?,
@@ -101,12 +98,6 @@ fun Drawer(
                     },
                     selected = false,
                     onClick = {
-//                        Toast.makeText(
-//                            context,
-//                            "Информация ${vm.mapCountry[vm.selectedCountry]}",
-//                            Toast.LENGTH_SHORT
-//                        ).show()
-
                         vm.getInfoAboutCountry(vm.mapCountry[vm.selectedCountry])
                         scope.launch {
                             drawerState.close()
@@ -119,7 +110,6 @@ fun Drawer(
                     },
                     selected = false,
                     onClick = {
-                        Toast.makeText(context, "Выходные", Toast.LENGTH_SHORT).show()
                         scope.launch {
                             drawerState.close()
                             navController.navigate("longWeekEnd")
@@ -127,13 +117,13 @@ fun Drawer(
                     })
                 NavigationDrawerItem(
                     label = {
-                        Text(text = "Праздники в году", fontSize = 22.sp)
+                        Text(text = "Праздники в стране", fontSize = 22.sp)
                     },
                     selected = false,
                     onClick = {
-                        Toast.makeText(context, "Праздники", Toast.LENGTH_SHORT).show()
                         scope.launch {
                             drawerState.close()
+                            navController.navigate("publicHoliday")
                         }
                     })
                 NavigationDrawerItem(
@@ -142,7 +132,6 @@ fun Drawer(
                     },
                     selected = false,
                     onClick = {
-                        //    Toast.makeText(context, "Назад", Toast.LENGTH_SHORT).show()
                         scope.launch {
                             drawerState.close()
                         }
@@ -225,7 +214,7 @@ fun Drawer(
                                             vm.changeSelectedCountry(item)
                                             scope.launch {
                                                 keyboardController?.hide()
-                                                delay(500)
+                                                delay(400)
                                                 drawerState.open()
                                             }
                                         }

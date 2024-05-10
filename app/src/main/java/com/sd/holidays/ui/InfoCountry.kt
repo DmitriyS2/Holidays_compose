@@ -1,5 +1,6 @@
 package com.sd.holidays.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,9 +25,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.sd.holidays.viewmodel.MainViewModel
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,6 +117,10 @@ fun InfoCountry(vm: MainViewModel = viewModel(), navController: NavController) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(5.dp)
+                                .clickable{
+                                    vm.changeSelectedCountry(item.commonName)
+                                    vm.getInfoAboutCountry(item.countryCode)
+                                }
                         ) {
                             Text(
                                 modifier = Modifier.padding(5.dp),

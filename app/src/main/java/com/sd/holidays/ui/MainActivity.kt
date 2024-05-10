@@ -1,8 +1,10 @@
 package com.sd.holidays.ui
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
@@ -23,8 +25,9 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
- //   private val viewModel: MainViewModel by viewModels()
+    //   private val viewModel: MainViewModel by viewModels()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -40,7 +43,7 @@ class MainActivity : ComponentActivity() {
 //                }
 
                 val navController = rememberNavController()
-                val vm:MainViewModel = viewModel()
+                val vm: MainViewModel = viewModel()
                 val keyboardController = LocalSoftwareKeyboardController.current
                 val focusManager = LocalFocusManager.current
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -50,19 +53,24 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable("drawer",
                             enterTransition = { slideInHorizontally() },
-                            exitTransition = { slideOutHorizontally ()},
-                            popEnterTransition = { slideInHorizontally()},
-                            popExitTransition = { slideOutHorizontally()}
-                        ){
-                            Drawer(context = this@MainActivity, vm, navController, keyboardController, focusManager)
+                            exitTransition = { slideOutHorizontally() },
+                            popEnterTransition = { slideInHorizontally() },
+                            popExitTransition = { slideOutHorizontally() }
+                        ) {
+                            Drawer(
+                                vm,
+                                navController,
+                                keyboardController,
+                                focusManager
+                            )
                         }
                         composable("info",
 //                            enterTransition = { slideInHorizontally(animationSpec =  tween(durationMillis = 100))},
 //                            exitTransition = { slideOutHorizontally (animationSpec = tween(durationMillis = 100))},
-                            enterTransition = { slideInHorizontally()},
-                            exitTransition = { slideOutHorizontally ()},
-                            popEnterTransition = { slideInHorizontally()},
-                            popExitTransition = { slideOutHorizontally()}
+                            enterTransition = { slideInHorizontally() },
+                            exitTransition = { slideOutHorizontally() },
+                            popEnterTransition = { slideInHorizontally() },
+                            popExitTransition = { slideOutHorizontally() }
                         ) {
 
                             InfoCountry(vm, navController)
@@ -70,14 +78,14 @@ class MainActivity : ComponentActivity() {
                         composable("longWeekEnd") {
                             LongWeekEnd(vm, navController, keyboardController, focusManager)
                         }
+                        composable("publicHoliday") {
+                            PublicHoliday(vm, navController, keyboardController, focusManager)
+                        }
                     }
                 }
-//            Drawer(
-//                context = this,
-//          //      listCountries,
-//              //  viewModel,
-//               )
             }
         }
     }
 }
+
+
