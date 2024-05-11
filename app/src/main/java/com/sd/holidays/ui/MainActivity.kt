@@ -52,10 +52,10 @@ class MainActivity : ComponentActivity() {
                         startDestination = "drawer"
                     ) {
                         composable("drawer",
-                            enterTransition = { slideInHorizontally() },
-                            exitTransition = { slideOutHorizontally() },
-                            popEnterTransition = { slideInHorizontally() },
-                            popExitTransition = { slideOutHorizontally() }
+//                            enterTransition = { slideInHorizontally() },
+//                            exitTransition = { slideOutHorizontally() },
+//                            popEnterTransition = { slideInHorizontally() },
+//                            popExitTransition = { slideOutHorizontally() }
                         ) {
                             Drawer(
                                 vm,
@@ -67,10 +67,10 @@ class MainActivity : ComponentActivity() {
                         composable("info",
 //                            enterTransition = { slideInHorizontally(animationSpec =  tween(durationMillis = 100))},
 //                            exitTransition = { slideOutHorizontally (animationSpec = tween(durationMillis = 100))},
-                            enterTransition = { slideInHorizontally() },
-                            exitTransition = { slideOutHorizontally() },
-                            popEnterTransition = { slideInHorizontally() },
-                            popExitTransition = { slideOutHorizontally() }
+//                            enterTransition = { slideInHorizontally() },
+//                            exitTransition = { slideOutHorizontally() },
+//                            popEnterTransition = { slideInHorizontally() },
+//                            popExitTransition = { slideOutHorizontally() }
                         ) {
 
                             InfoCountry(vm, navController)
@@ -80,6 +80,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("publicHoliday") {
                             PublicHoliday(vm, navController, keyboardController, focusManager)
+                        }
+                        composable("nextHoliday7Days") {
+                            NextHoliday7Days(vm, navController)
                         }
                     }
                 }

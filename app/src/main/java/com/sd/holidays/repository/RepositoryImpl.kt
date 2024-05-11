@@ -67,4 +67,18 @@ class RepositoryImpl @Inject constructor(
             return listOf()
         }
     }
+
+    override suspend fun getNextHoliday(): List<DataHoliday> {
+        try {
+            val response = apiService.getNextHoliday()
+            if (!response.isSuccessful) {
+                return listOf()
+            }
+            val body = response.body()
+            return body ?: listOf()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return listOf()
+        }
+    }
 }

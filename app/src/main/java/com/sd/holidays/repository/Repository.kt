@@ -10,4 +10,5 @@ interface Repository {
     suspend fun getInfoAboutCountry(code: String): InfoAboutCountry
     suspend fun getLongWeekEnd(year: String, code: String): List<DataLongWeekEnd>
     suspend fun getHoliday(year: String, code: String): List<DataHoliday>
+    suspend fun getNextHoliday(): List<DataHoliday>
 }

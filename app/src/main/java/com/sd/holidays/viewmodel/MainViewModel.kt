@@ -39,6 +39,8 @@ class MainViewModel @Inject constructor(
     val mapCountry: Map<String, String>
         get() = _mapCountry
 
+    private val _mapCode:MutableMap<String, String> = mutableMapOf()
+
     private val _infoCountry: MutableLiveData<ModelInfoAboutCountry> = MutableLiveData()
     val infoCountry: LiveData<ModelInfoAboutCountry>
         get() = _infoCountry
@@ -55,6 +57,10 @@ class MainViewModel @Inject constructor(
     private val _dataModelHoliday = MutableLiveData<ModelDataHoliday>()
     val dataModelHoliday: LiveData<ModelDataHoliday>
         get() = _dataModelHoliday
+
+    private val _dataModelNextHoliday = MutableLiveData<ModelDataHoliday>()
+    val dataModelNextHoliday:LiveData<ModelDataHoliday>
+        get() = _dataModelNextHoliday
 
     init {
         loadDataCountry()
@@ -79,6 +85,7 @@ class MainViewModel @Inject constructor(
                     temp.forEach {
                         //     _mapCountry[it.countryCode] = it.name
                         _mapCountry[it.name] = it.countryCode
+                        _mapCode[it.countryCode] = it.name
                     }
                 } else {
                     _dataModelCountry.value = ModelCountryCode(error = true)
@@ -171,12 +178,7 @@ class MainViewModel @Inject constructor(
                     }
 
                 _dataModelHoliday.value = ModelDataHoliday(
-                    listDataHoliday =
-                    temp
-//                    repository.getLongWeekEnd(
-//                        value,
-//                        _mapCountry[selectedCountry] ?: "ru"
-//                    )
+                    listDataHoliday = temp
                 )
                 if (_dataModelHoliday.value?.listDataHoliday.isNullOrEmpty()) {
                     _dataModelHoliday.value = ModelDataHoliday(error = true)
@@ -184,6 +186,37 @@ class MainViewModel @Inject constructor(
                 Log.d(
                     "MyLog",
                     "_dataModelHoliday=${_dataModelHoliday.value?.listDataHoliday} null=${_dataModelHoliday.value?.listDataHoliday.isNullOrEmpty()}"
+                )
+            } catch (e: Exception) {
+                _dataModelHoliday.value = ModelDataHoliday(error = true)
+            }
+        }
+    }
+
+    fun getListNextHoliday() {
+        viewModelScope.launch {
+            try {
+                _dataModelNextHoliday.value = ModelDataHoliday(loading = true)
+                val temp = repository.getNextHoliday()
+                    .map {
+                        DataHoliday(
+                            date = (it.date.split("-").reversed().joinToString("-")).getDay(),
+                            localName = it.localName,
+                            name = it.name,
+                            countryCode = _mapCode[it.countryCode] ?: "", //название страны
+                            types = it.types
+                        )
+                    }
+
+                _dataModelNextHoliday.value = ModelDataHoliday(
+                    listDataHoliday = temp
+                )
+                if (_dataModelNextHoliday.value?.listDataHoliday.isNullOrEmpty()) {
+                    _dataModelNextHoliday.value = ModelDataHoliday(error = true)
+                }
+                Log.d(
+                    "MyLog",
+                    "_dataModelNextHoliday=${_dataModelNextHoliday.value?.listDataHoliday} null=${_dataModelNextHoliday.value?.listDataHoliday.isNullOrEmpty()}"
                 )
             } catch (e: Exception) {
                 _dataModelHoliday.value = ModelDataHoliday(error = true)

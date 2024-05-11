@@ -33,4 +33,9 @@ interface ApiService {
         @Path("year") year: String,
         @Path("code") code: String
     ): Response<List<DataHoliday>>
+
+    //инфо о всех праздниках в ближайшие 7 дней
+    @GET("api/v3/NextPublicHolidaysWorldwide")
+    suspend fun getNextHoliday(): Response<List<DataHoliday>>
+
 }
