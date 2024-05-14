@@ -5,9 +5,10 @@ import java.time.LocalDate
 fun String.getDay(): String = try {
     "$this (${
         LocalDate.parse(
-        this.split("-").reversed().joinToString("-")
-    ).dayOfWeek})"
-} catch (e:Exception) {
+            this.split("-").reversed().joinToString("-")
+        ).dayOfWeek
+    })"
+} catch (e: Exception) {
     this
 }
 
@@ -18,5 +19,14 @@ fun checkInputText(text: String): Boolean {
         number in 1974..2074
     } catch (e: Exception) {
         false
+    }
+}
+
+fun getEnd(number: Int): String {
+    val newNumber = number % 100
+    return when {
+        (newNumber % 10 == 1 && newNumber != 11) -> "в $number стране"
+        newNumber == 0 -> "нигде"
+        else -> "в $number странах"
     }
 }

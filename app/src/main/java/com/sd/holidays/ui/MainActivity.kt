@@ -1,9 +1,14 @@
 package com.sd.holidays.ui
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -18,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.sd.holidays.AlarmReceiver
 import com.sd.holidays.ui.theme.HolidaysTheme
 import com.sd.holidays.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,7 +33,6 @@ class MainActivity : ComponentActivity() {
 
     //   private val viewModel: MainViewModel by viewModels()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -46,6 +51,14 @@ class MainActivity : ComponentActivity() {
                 val vm: MainViewModel = viewModel()
                 val keyboardController = LocalSoftwareKeyboardController.current
                 val focusManager = LocalFocusManager.current
+
+                var alarmManager = this.getSystemService(ALARM_SERVICE) as AlarmManager
+//                var alarmIntent:PendingIntent = Intent(this, AlarmReceiver::class.java).let { intent->
+//               //     intent.putExtra("key", "hello")
+//                    PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+//                }
+
+
                 Box(modifier = Modifier.fillMaxSize()) {
                     NavHost(
                         navController = navController,
@@ -82,13 +95,19 @@ class MainActivity : ComponentActivity() {
                             PublicHoliday(vm, navController, keyboardController, focusManager)
                         }
                         composable("nextHoliday7Days") {
-                            NextHoliday7Days(vm, navController)
+                            NextHoliday7Days(vm, navController, this@MainActivity)
                         }
                     }
                 }
             }
         }
     }
+
 }
 
+fun hello() {
 
+  //  Log.d("MyLog", "from hello=${viewModel.dataModelHoliday.value?.listDataHoliday}")
+
+    // viewModel.getListNextHoliday()
+}

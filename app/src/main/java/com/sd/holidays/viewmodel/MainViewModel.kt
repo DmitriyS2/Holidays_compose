@@ -200,7 +200,7 @@ class MainViewModel @Inject constructor(
                 val temp = repository.getNextHoliday()
                     .map {
                         DataHoliday(
-                            date = (it.date.split("-").reversed().joinToString("-")).getDay(),
+                            date = (it.date.split("-").reversed().joinToString("-")),
                             localName = it.localName,
                             name = it.name,
                             countryCode = _mapCode[it.countryCode] ?: "", //название страны
