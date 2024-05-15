@@ -1,8 +1,6 @@
-package com.sd.holidays.ui
+package com.sd.holidays.ui.screen
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -44,8 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -69,12 +64,7 @@ fun Drawer(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-//    val keyboardController = LocalSoftwareKeyboardController.current
-//    val focusManager = LocalFocusManager.current
-
-    //  val listCountries by vm.dataCountry.observeAsState()
     val modelListCountries by vm.dataModelCountry.observeAsState()
- //   var selectedCountry = ""
 
     val searchText = remember {
         mutableStateOf("")
@@ -219,7 +209,6 @@ fun Drawer(
                         }
                         Spacer(modifier = Modifier.height(25.dp))
                         LazyColumn() {
-                            //     itemsIndexed(listCountries ?: emptyList()) { _, item ->
                             itemsIndexed(
                                 modelListCountries?.listCountry ?: emptyList()
                             ) { _, item ->

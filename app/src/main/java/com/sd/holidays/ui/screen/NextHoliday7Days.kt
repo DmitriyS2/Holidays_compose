@@ -1,4 +1,4 @@
-package com.sd.holidays.ui
+package com.sd.holidays.ui.screen
 
 import android.app.Activity
 import android.app.AlarmManager
@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.sd.holidays.AlarmReceiver
+import com.sd.holidays.br.AlarmReceiver
 import com.sd.holidays.util.getDay
 import com.sd.holidays.viewmodel.MainViewModel
 import java.time.LocalDate
@@ -46,10 +46,11 @@ import java.time.ZoneOffset
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NextHoliday7Days(vm: MainViewModel = viewModel(), navController: NavController, context: Context) {
+fun NextHoliday7Days(vm: MainViewModel = viewModel(), navController: NavController, context:Context) {
+
     val nextHoliday by vm.dataModelNextHoliday.observeAsState()
 
-    val checkedState = remember { mutableStateOf(false) }
+    val checkedState by vm.stateNotification.observeAsState()
     val textColor = remember { mutableStateOf(Color.Unspecified) }
 
     val alarmManager = context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager
@@ -93,10 +94,10 @@ fun NextHoliday7Days(vm: MainViewModel = viewModel(), navController: NavControll
                 Row (verticalAlignment = Alignment.CenterVertically){
                     Text("Уведомления о праздниках", fontSize = 16.sp, color = textColor.value, modifier = Modifier.padding(8.dp, 0.dp))
                     Switch(
-                        checked = checkedState.value,
+                        checked = checkedState ?: false,
                         onCheckedChange = {
-                            checkedState.value = it
-                            if(checkedState.value) {
+                             vm.setStateNotification(it) //checkedState = it
+                            if(checkedState==true) {
                                 textColor.value = Color(0xFF6650a4)
 
                                 val data = LocalDate.now().atTime(10,0).toInstant(ZoneOffset.UTC).toEpochMilli()

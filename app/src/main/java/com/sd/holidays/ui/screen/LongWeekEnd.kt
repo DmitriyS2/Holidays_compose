@@ -1,4 +1,4 @@
-package com.sd.holidays.ui
+package com.sd.holidays.ui.screen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,20 +34,22 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.sd.holidays.util.checkInputText
 import com.sd.holidays.viewmodel.MainViewModel
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PublicHoliday(
-    vm: MainViewModel,
-    navController: NavHostController,
+fun LongWeekEnd(
+    vm: MainViewModel = viewModel(),
+    navController: NavController,
     keyboardController: SoftwareKeyboardController?,
     focusManager: FocusManager
 ) {
 
-    val publicHoliday by vm.dataModelHoliday.observeAsState()
+    val longWeekEnd by vm.dataModelLongWeekEnd.observeAsState()
 
     val text = remember {
         mutableStateOf("")
@@ -68,12 +70,12 @@ fun PublicHoliday(
             },
             navigationIcon = {
                 IconButton(onClick = {
-                    vm.getListHoliday("")
+                    vm.getListLongWeeEnd("")
                     navController.navigate("drawer")
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "backFromPublicHoliday"
+                        contentDescription = "backFromLongWeekEnd"
                     )
                 }
             }
@@ -89,7 +91,7 @@ fun PublicHoliday(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             keyboardActions = KeyboardActions(onDone = {
                 if (checkInputText(text.value)) {
-                    vm.getListHoliday(text.value)
+                    vm.getListLongWeeEnd(text.value)
                     isError.value = false
                     keyboardController?.hide()
                     focusManager.clearFocus()
@@ -122,7 +124,7 @@ fun PublicHoliday(
             trailingIcon = {
                 IconButton(onClick = {
                     if (checkInputText(text.value)) {
-                        vm.getListHoliday(text.value)
+                        vm.getListLongWeeEnd(text.value)
                         isError.value = false
                         keyboardController?.hide()
                         focusManager.clearFocus()
@@ -134,21 +136,22 @@ fun PublicHoliday(
                 }
             },
         )
-        Text(text = "Праздники", fontSize = 18.sp)
+
+        Text(text = "Длинные выходные", fontSize = 18.sp)
         Spacer(modifier = Modifier.height(15.dp))
 
         when {
-            publicHoliday?.loading == true -> {
+            longWeekEnd?.loading == true -> {
 
             }
 
-            publicHoliday?.error == true -> {
+            longWeekEnd?.error == true -> {
 
             }
 
             else -> {
                 LazyColumn() {
-                    itemsIndexed(publicHoliday?.listDataHoliday ?: emptyList()) { _, item ->
+                    itemsIndexed(longWeekEnd?.listDataLongWeekEnd ?: emptyList()) { _, item ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -156,19 +159,15 @@ fun PublicHoliday(
                         ) {
                             Text(
                                 modifier = Modifier.padding(5.dp),
-                                text = "Дата: ${item.date}"
+                                text = "Начало: ${item.startDate}"
                             )
                             Text(
                                 modifier = Modifier.padding(5.dp),
-                                text = "Местное название: ${item.localName}"
+                                text = "Завершение: ${item.endDate}"
                             )
                             Text(
                                 modifier = Modifier.padding(5.dp),
-                                text = "Название: ${item.name}"
-                            )
-                            Text(
-                                modifier = Modifier.padding(5.dp),
-                                text = "Тип: ${item.types.joinToString(", ")}"
+                                text = "Длительность: ${item.dayCount} дн"
                             )
                         }
                     }
@@ -177,3 +176,6 @@ fun PublicHoliday(
         }
     }
 }
+
+
+

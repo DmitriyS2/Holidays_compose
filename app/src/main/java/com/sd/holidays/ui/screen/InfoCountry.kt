@@ -1,4 +1,4 @@
-package com.sd.holidays.ui
+package com.sd.holidays.ui.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -40,7 +40,6 @@ fun InfoCountry(vm: MainViewModel = viewModel(), navController: NavController) {
 
         }
 
-     //   infoCountry != null -> {
         else -> {
 
             Column(
@@ -137,6 +136,4 @@ fun InfoCountry(vm: MainViewModel = viewModel(), navController: NavController) {
             }
         }
     }
-
-
 }

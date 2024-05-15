@@ -25,9 +25,9 @@ class MainViewModel @Inject constructor(
     private val repository: Repository
 ) : ViewModel() {
 
-//    private val _dataCountry = MutableLiveData<List<String>>(emptyList())
-//    val dataCountry: LiveData<List<String>>
-//        get() = _dataCountry
+    private val _stateNotification = MutableLiveData(false)
+    val stateNotification:LiveData<Boolean>
+        get() = _stateNotification
 
     private var originListCountry: List<String> = emptyList()
 
@@ -45,8 +45,8 @@ class MainViewModel @Inject constructor(
     val infoCountry: LiveData<ModelInfoAboutCountry>
         get() = _infoCountry
 
-    //название страны
-    private var _selectedCountry = ""
+
+    private var _selectedCountry = "" //название страны
     val selectedCountry: String
         get() = _selectedCountry
 
@@ -64,6 +64,16 @@ class MainViewModel @Inject constructor(
 
     init {
         loadDataCountry()
+        initStateNotification()
+    }
+
+    private fun initStateNotification() {
+        _stateNotification.value = repository.getStateNotification()
+    }
+
+    fun setStateNotification(state:Boolean) {
+        _stateNotification.value = state
+        repository.setStateNotification(state)
     }
 
     fun loadDataCountry() {
@@ -75,24 +85,15 @@ class MainViewModel @Inject constructor(
                     originListCountry = temp.map {
                         it.name
                     }
-//                _dataModelCountry.value = ModelCountryCode(listCountry = temp.map{
-//                    it.name
-//                })
                     _dataModelCountry.value = ModelCountryCode(listCountry = originListCountry)
-//                _dataCountry.value = temp.map {
-//                    it.name
-//                }
                     temp.forEach {
-                        //     _mapCountry[it.countryCode] = it.name
                         _mapCountry[it.name] = it.countryCode
                         _mapCode[it.countryCode] = it.name
                     }
                 } else {
                     _dataModelCountry.value = ModelCountryCode(error = true)
                 }
-                //     Log.d("MyLog", "$_mapCountry")
             } catch (e: Exception) {
-                //     _dataCountry.value = emptyList()
                 _dataModelCountry.value = ModelCountryCode(error = true)
             }
         }
@@ -141,14 +142,7 @@ class MainViewModel @Inject constructor(
                         )
                     }
 
-                _dataModelLongWeekEnd.value = ModelDataLongWeekEnd(
-                    listDataLongWeekEnd =
-                        temp
-//                    repository.getLongWeekEnd(
-//                        value,
-//                        _mapCountry[selectedCountry] ?: "ru"
-//                    )
-                )
+                _dataModelLongWeekEnd.value = ModelDataLongWeekEnd(listDataLongWeekEnd = temp)
                 if (_dataModelLongWeekEnd.value?.listDataLongWeekEnd.isNullOrEmpty()) {
                     _dataModelLongWeekEnd.value = ModelDataLongWeekEnd(error = true)
                 }

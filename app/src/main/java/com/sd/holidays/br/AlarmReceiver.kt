@@ -1,4 +1,4 @@
-package com.sd.holidays
+package com.sd.holidays.br
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -13,6 +13,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
+import com.sd.holidays.R
 import com.sd.holidays.repository.Repository
 import com.sd.holidays.ui.MainActivity
 import com.sd.holidays.util.getEnd
@@ -42,8 +43,8 @@ class AlarmReceiver : BroadcastReceiver() {
             }.count {
                 it
             }
-            if(count!=0) {
-                Log.d("MyLog", "pause because count!=0")
+            if(count==0) {
+                Log.d("MyLog", "pause because count==0")
                 delay(120000)
                 Log.d("MyLog", "continue to receive count")
                 count = repository.getNextHoliday().map {
