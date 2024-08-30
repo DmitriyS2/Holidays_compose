@@ -1,14 +1,8 @@
 package com.sd.holidays.presentation.ui.screen
 
-import android.app.Activity
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,7 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,48 +32,39 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.sd.holidays.domain.br.AlarmReceiver
 import com.sd.holidays.presentation.ui.theme.Blue
 import com.sd.holidays.presentation.viewmodel.MainViewModel
 import com.sd.holidays.util.extensions.getDay
 import com.sd.holidays.util.sealed.Routes
-import java.time.LocalDate
-import java.time.ZoneOffset
+import com.sd.holidays.util.toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NextHoliday7Days(
     vm: MainViewModel = viewModel(),
     navController: NavController,
-    context:Context
 ) {
+
+    val context = LocalContext.current
 
     val nextHoliday by vm.dataModelNextHoliday.observeAsState()
 
     val checkedState by vm.stateNotification.observeAsState()
     val textColor = remember { mutableStateOf(Color.Unspecified) }
 
-    val alarmManager = context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager
-//    val alarmIntent: PendingIntent = Intent(context, AlarmReceiver::class.java).let { intent->
-//        //     intent.putExtra("key", "hello")
-//        PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-  //  }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Blue),
-   //         .padding(5.dp),
-        //     verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TopAppBar(
-            title = {
-                Text(text = "Ближайшие праздники")
-            },
+            title = { Text(text = "Ближайшие праздники") },
             colors = TopAppBarColors(
                 containerColor = Blue,
                 scrolledContainerColor = Blue,
@@ -97,93 +84,82 @@ fun NextHoliday7Days(
             }
         )
         when {
-            nextHoliday?.loading == true -> {
-                Log.d("MyLog", "nextHol loading")
-            }
-
             nextHoliday?.error == true -> {
-                Log.d("MyLog", "nextHol error")
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Blue),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(text = "Что-то пошло не так...Попробуйте позже")
+                    Button(onClick = {
+                        vm.loadDataCountry()
+                    }) {
+                        Text(text = "Retry")
+                    }
+                }
             }
 
             else -> {
-                Row (verticalAlignment = Alignment.CenterVertically){
-                    Text("Уведомления о праздниках", fontSize = 16.sp, color = textColor.value, modifier = Modifier.padding(8.dp, 0.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "Уведомления о праздниках",
+                        fontSize = 16.sp,
+                        color = textColor.value,
+                        modifier = Modifier.padding(8.dp, 0.dp)
+                    )
                     Switch(
                         checked = checkedState ?: false,
                         onCheckedChange = {
-                             vm.setStateNotification(it) //checkedState = it
-                            if(checkedState==true) {
+                            vm.setStateNotification(it) //checkedState = it
+                            if (checkedState == true) {
                                 textColor.value = Color(0xFF6650a4)
-
-                                val data = LocalDate.now().atTime(10,0).toInstant(ZoneOffset.UTC).toEpochMilli()
-                                val alarmIntent: PendingIntent =
-                                    Intent(context, AlarmReceiver::class.java).let { intent ->
-                                        PendingIntent.getBroadcast(
-                                            context,
-                                            0,
-                                            intent,
-                                            PendingIntent.FLAG_UPDATE_CURRENT
-                                        )
-                                    }
-                                alarmManager.setInexactRepeating(
-                                    AlarmManager.RTC_WAKEUP,
-                                    data,
-                                       AlarmManager.INTERVAL_DAY,
-                                    //     AlarmManager.INTERVAL_HOUR,
-                               //     30000,
-                                    alarmIntent
-                                )
-                                Toast.makeText(context, "Уведомления включены", Toast.LENGTH_SHORT).show()
-                                Log.d("MyLog", "alarmAManager from switch on=$alarmManager")
+                                vm.setAlarm()
+                                toast(context, "Уведомления включены")
                             } else {
                                 textColor.value = Color.Unspecified
-                                Toast.makeText(context, "Уведомления выключены", Toast.LENGTH_SHORT).show()
-                                val intentA = Intent(context, AlarmReceiver::class.java)
-                                val pendingIntentA = PendingIntent.getBroadcast(
-                                    context,
-                                    0,
-                                    intentA,
-                                    PendingIntent.FLAG_UPDATE_CURRENT
-                                )
-                                alarmManager.cancel(pendingIntentA)
-                                Log.d("MyLog", "alarmAManager from switch off=$alarmManager, pendingIntentA=$pendingIntentA")
+                                vm.cancelAlarm()
+                                toast(context, "Уведомления выключены")
                             }
                         }
                     )
                 }
-                Log.d("MyLog", "nextHol else")
                 Spacer(modifier = Modifier.height(10.dp))
-                LazyColumn() {
+                LazyColumn {
                     itemsIndexed(nextHoliday?.listDataHoliday ?: emptyList()) { _, item ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(5.dp)
-                                .clickable {
-
-                                }
+                                .padding(5.dp),
                         ) {
                             Text(
                                 modifier = Modifier.padding(5.dp),
-                                text = "Страна: ${item.countryCode}", fontSize = 18.sp
+                                text = "Страна: ${item.countryCode}",
+                                fontSize = 18.sp,
                             )
                             Text(
                                 modifier = Modifier.padding(5.dp),
-                                text = "Дата: ${item.date.getDay()}"
+                                text = "Дата: ${item.date.getDay()}",
                             )
                             Text(
                                 modifier = Modifier.padding(5.dp),
-                                text = "Местное название: ${item.localName}"
+                                text = "Местное название: ${item.localName}",
                             )
                             Text(
                                 modifier = Modifier.padding(5.dp),
-                                text = "Название: ${item.name}"
+                                text = "Название: ${item.name}",
                             )
                             Text(
                                 modifier = Modifier.padding(5.dp),
-                                text = "Тип: ${item.types.joinToString(", ")}"
+                                text = "Тип: ${item.types.joinToString(", ")}",
                             )
                         }
+                    }
+                }
+                if (nextHoliday?.loading == true) {
+                    Box {
+                        CircularProgressIndicator()
                     }
                 }
             }

@@ -22,7 +22,7 @@ import javax.inject.Singleton
 class RepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val apiService: ApiService
-): Repository {
+) : Repository {
 
     private val prefs = context.getSharedPreferences("notification", Context.MODE_PRIVATE)
     private val stateKey = "state"
@@ -108,8 +108,11 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
-    fun setAlarm() {
-        val data = LocalDate.now().atTime(10,0).toInstant(ZoneOffset.UTC).toEpochMilli()
+    override fun setAlarm() {
+        val data = LocalDate.now()
+            .atTime(10, 0)
+            .toInstant(ZoneOffset.UTC)
+            .toEpochMilli()
         val alarmIntent: PendingIntent =
             Intent(context, AlarmReceiver::class.java).let { intent ->
                 PendingIntent.getBroadcast(
@@ -123,13 +126,11 @@ class RepositoryImpl @Inject constructor(
             AlarmManager.RTC_WAKEUP,
             data,
             AlarmManager.INTERVAL_DAY,
-            //     AlarmManager.INTERVAL_HOUR,
-            //     30000,
             alarmIntent
         )
     }
 
-    fun cancelAlarm() {
+    override fun cancelAlarm() {
         val intentA = Intent(context, AlarmReceiver::class.java)
         val pendingIntentA = PendingIntent.getBroadcast(
             context,

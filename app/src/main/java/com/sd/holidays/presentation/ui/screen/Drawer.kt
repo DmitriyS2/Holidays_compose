@@ -1,6 +1,5 @@
 package com.sd.holidays.presentation.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -66,6 +66,7 @@ fun Drawer(
     keyboardController: SoftwareKeyboardController?,
     focusManager: FocusManager
 ) {
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -97,39 +98,37 @@ fun Drawer(
                     },
                     selected = false,
                     onClick = {
-                        vm.getInfoAboutCountry(vm.mapCountry[vm.selectedCountry])
+                        vm.getInfoAboutCountry(vm.mapCountry[vm.selectedCountryName])
                         scope.launch {
                             drawerState.close()
+                            delay(100)
                             navController.navigate(Routes.Info.route)
                         }
                     })
                 NavigationDrawerItem(
-                    label = {
-                        Text(text = "Длинные выходные", fontSize = 22.sp)
-                    },
+                    label = { Text(text = "Длинные выходные", fontSize = 22.sp) },
                     selected = false,
                     onClick = {
                         vm.getListLongWeekEnd(vm.longWeekEndYear.value ?: "")
                         scope.launch {
                             drawerState.close()
+                            delay(100)
                             navController.navigate(Routes.LongWeekEnd.route)
                         }
                     })
                 NavigationDrawerItem(
-                    label = {
-                        Text(text = "Праздники в стране", fontSize = 22.sp)
-                    },
+                    label = { Text(text = "Праздники в стране", fontSize = 22.sp) },
                     selected = false,
                     onClick = {
+                        vm.getListHoliday(vm.publicHolidayYear.value ?: "")
                         scope.launch {
                             drawerState.close()
+                            delay(100)
                             navController.navigate(Routes.PublicHoliday.route)
                         }
                     })
                 NavigationDrawerItem(
-                    label = {
-                        Text(text = "Назад", fontSize = 22.sp)
-                    },
+                    label = { Text(text = "Назад", fontSize = 22.sp) },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -141,7 +140,6 @@ fun Drawer(
         content = {
             when {
                 modelListCountries?.loading == true -> {
-                    Log.d("MyLog", "loading drawer")
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -156,7 +154,6 @@ fun Drawer(
                 }
 
                 modelListCountries?.error == true -> {
-                    Log.d("MyLog", "error drawer")
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -174,16 +171,13 @@ fun Drawer(
                 }
 
                 else -> {
-                    Log.d("MyLog", "else drawer")
-
                     Column(
                         Modifier
                             .fillMaxSize()
-                            .background(Blue)) {
+                            .background(Blue)
+                    ) {
                         TopAppBar(
-                            title = {
-                                Text(text = "Все страны")
-                            },
+                            title = { Text(text = "Все страны") },
                             colors = TopAppBarColors(
                                 containerColor = Blue,
                                 scrolledContainerColor = Blue,
@@ -197,11 +191,11 @@ fun Drawer(
                                     navController.navigate(Routes.NextHoliday7Days.route)
                                 }) {
                                     Icon(
-                                        imageVector = Icons.Default.MoreVert,
+                                        imageVector = Icons.Default.Notifications,
                                         contentDescription = "toHolidayToday"
                                     )
                                 }
-                            }
+                            },
                         )
                         SearchBar(
                             modifier = Modifier
@@ -221,18 +215,14 @@ fun Drawer(
                                 focusManager.clearFocus()
                             },
                             active = false,
-                            onActiveChange = {
-                                vm.searchCountry("")
-                            },
+                            onActiveChange = { vm.searchCountry("") },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = "search"
                                 )
                             }
-                        ) {
-
-                        }
+                        ) {}
                         Spacer(modifier = Modifier.height(25.dp))
                         LazyColumn() {
                             itemsIndexed(

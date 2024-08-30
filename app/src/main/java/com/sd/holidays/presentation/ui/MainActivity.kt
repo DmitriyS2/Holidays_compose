@@ -3,6 +3,8 @@ package com.sd.holidays.presentation.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
@@ -29,24 +31,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             HolidaysTheme {
-
                 val navController = rememberNavController()
                 val vm: MainViewModel = viewModel()
                 val keyboardController = LocalSoftwareKeyboardController.current
                 val focusManager = LocalFocusManager.current
-
-          //      var alarmManager = this.getSystemService(ALARM_SERVICE) as AlarmManager
 
                 Box(modifier = Modifier.fillMaxSize()) {
                     NavHost(
                         navController = navController,
                         startDestination = Routes.Drawer.route
                     ) {
-                        composable("drawer",
-//                            enterTransition = { slideInHorizontally() },
-//                            exitTransition = { slideOutHorizontally() },
-//                            popEnterTransition = { slideInHorizontally() },
-//                            popExitTransition = { slideOutHorizontally() }
+                        composable(
+                            Routes.Drawer.route,
+                            enterTransition = { fadeIn() },
+                            exitTransition = { fadeOut() },
+                            popEnterTransition = { fadeIn() },
+                            popExitTransition = { fadeOut() },
                         ) {
                             Drawer(
                                 vm,
@@ -55,9 +55,7 @@ class MainActivity : ComponentActivity() {
                                 focusManager
                             )
                         }
-                        composable(Routes.Info.route) {
-                            InfoCountry(vm, navController)
-                        }
+                        composable(Routes.Info.route) { InfoCountry(vm, navController) }
                         composable(Routes.LongWeekEnd.route) {
                             LongWeekEnd(vm, navController, keyboardController, focusManager)
                         }
@@ -65,7 +63,7 @@ class MainActivity : ComponentActivity() {
                             PublicHoliday(vm, navController, keyboardController, focusManager)
                         }
                         composable(Routes.NextHoliday7Days.route) {
-                            NextHoliday7Days(vm, navController, this@MainActivity)
+                            NextHoliday7Days(vm, navController)
                         }
                     }
                 }

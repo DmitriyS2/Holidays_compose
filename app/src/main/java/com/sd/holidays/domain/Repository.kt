@@ -9,9 +9,11 @@ interface Repository {
 
     fun getStateNotification(): Boolean
     fun setStateNotification(state: Boolean)
-     suspend fun loadDataCountry(): List<CountryCode>
+    suspend fun loadDataCountry(): List<CountryCode>
     suspend fun getInfoAboutCountry(code: String): InfoAboutCountry
     suspend fun getLongWeekEnd(year: String, code: String): List<DataLongWeekEnd>
     suspend fun getHoliday(year: String, code: String): List<DataHoliday>
     suspend fun getNextHoliday(): List<DataHoliday>
+    fun setAlarm()
+    fun cancelAlarm()
 }

@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
@@ -33,9 +32,6 @@ class AlarmReceiver : BroadcastReceiver() {
     lateinit var repository: Repository
 
     override fun onReceive(context: Context, intent: Intent) {
-
-        Log.d("MyLog", "onReceive")
-
         CoroutineScope(Dispatchers.Default).launch {
             val dateNow = LocalDate.now()
             var count = repository.getNextHoliday().map {
@@ -43,27 +39,21 @@ class AlarmReceiver : BroadcastReceiver() {
             }.count {
                 it
             }
-            if(count==0) {
-                Log.d("MyLog", "pause because count=0")
+            if (count == 0) {
                 delay(120000)
-                Log.d("MyLog", "continue to receive count")
                 count = repository.getNextHoliday().map {
                     LocalDate.parse(it.date) == dateNow
                 }.count {
                     it
                 }
             }
-            Log.d("MyLog", "dateNow==$count")
             buildNotification(context, count)
         }
     }
 
-    private fun buildNotification(context: Context, count:Int) {
-        val CHANNEL_ID = "channelID"
-        val CHANNEL_NAME = "channelName"
-        val title = if(count==0) "Сегодня нет праздника" else "Сегодня праздник"
+    private fun buildNotification(context: Context, count: Int) {
+        val title = if (count == 0) "Сегодня нет праздника" else "Сегодня праздник"
         val text = getEnd(count)
-
         val intentActivity = Intent(context, MainActivity::class.java)
         val pi =
             PendingIntent.getActivity(context, 0, intentActivity, PendingIntent.FLAG_IMMUTABLE)
@@ -98,5 +88,10 @@ class AlarmReceiver : BroadcastReceiver() {
         ) {
             notificationManager.notify(Random.nextInt(100_000), notification)
         }
+    }
+
+    companion object {
+        private const val CHANNEL_ID = "channelID"
+        private const val CHANNEL_NAME = "channelName"
     }
 }

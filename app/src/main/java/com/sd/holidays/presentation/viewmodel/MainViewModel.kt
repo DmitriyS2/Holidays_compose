@@ -1,6 +1,5 @@
 package com.sd.holidays.presentation.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -25,7 +24,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _stateNotification = MutableLiveData(false)
-    val stateNotification:LiveData<Boolean>
+    val stateNotification: LiveData<Boolean>
         get() = _stateNotification
 
     private var originListCountry: List<String> = emptyList()
@@ -38,45 +37,48 @@ class MainViewModel @Inject constructor(
     val mapCountry: Map<String, String>
         get() = _mapCountry
 
-    private val _mapCode:MutableMap<String, String> = mutableMapOf()
+    private val _mapCode: MutableMap<String, String> = mutableMapOf()
 
     private val _infoCountry: MutableLiveData<ModelInfoAboutCountry> = MutableLiveData()
     val infoCountry: LiveData<ModelInfoAboutCountry>
         get() = _infoCountry
 
-
-    private var _selectedCountry = "" //название страны
-    val selectedCountry: String
-        get() = _selectedCountry
+    private var _selectedCountryName = "" //название страны
+    val selectedCountryName: String
+        get() = _selectedCountryName
 
     private val _dataModelLongWeekEnd = MutableLiveData<ModelDataLongWeekEnd>()
     val dataModelLongWeekEnd: LiveData<ModelDataLongWeekEnd>
         get() = _dataModelLongWeekEnd
 
+    private val _longWeekEndYear = MutableLiveData<String>()
+    val longWeekEndYear: LiveData<String>
+        get() = _longWeekEndYear
+
     private val _dataModelHoliday = MutableLiveData<ModelDataHoliday>()
     val dataModelHoliday: LiveData<ModelDataHoliday>
         get() = _dataModelHoliday
 
+    private val _publicHolidayYear = MutableLiveData<String>()
+    val publicHolidayYear: LiveData<String>
+        get() = _publicHolidayYear
+
     private val _dataModelNextHoliday = MutableLiveData<ModelDataHoliday>()
-    val dataModelNextHoliday:LiveData<ModelDataHoliday>
+    val dataModelNextHoliday: LiveData<ModelDataHoliday>
         get() = _dataModelNextHoliday
-
-
-    private val _longWeekEndYear = MutableLiveData<String>()
-    val longWeekEndYear:LiveData<String>
-        get()=_longWeekEndYear
 
     init {
         loadDataCountry()
         initStateNotification()
         _longWeekEndYear.value = LocalDate.now().year.toString()
+        _publicHolidayYear.value = LocalDate.now().year.toString()
     }
 
     private fun initStateNotification() {
         _stateNotification.value = repository.getStateNotification()
     }
 
-    fun setStateNotification(state:Boolean) {
+    fun setStateNotification(state: Boolean) {
         _stateNotification.value = state
         repository.setStateNotification(state)
     }
@@ -131,18 +133,20 @@ class MainViewModel @Inject constructor(
     }
 
     fun changeSelectedCountry(name: String) {
-        _selectedCountry = name
+        _selectedCountryName = name
     }
 
     fun getListLongWeekEnd(year: String) {
         viewModelScope.launch {
             try {
                 _dataModelLongWeekEnd.value = ModelDataLongWeekEnd(loading = true)
-                val temp = repository.getLongWeekEnd(year, _mapCountry[selectedCountry] ?: "")
+                val temp = repository.getLongWeekEnd(year, _mapCountry[selectedCountryName] ?: "")
                     .map {
                         DataLongWeekEnd(
-                            startDate = (it.startDate.split("-").reversed().joinToString("-")).getDay(),
+                            startDate = (it.startDate.split("-").reversed()
+                                .joinToString("-")).getDay(),
                             endDate = (it.endDate.split("-").reversed().joinToString("-")).getDay(),
+                            date = LocalDate.parse(it.endDate),
                             dayCount = it.dayCount
                         )
                     }
@@ -151,10 +155,6 @@ class MainViewModel @Inject constructor(
                 if (_dataModelLongWeekEnd.value?.listDataLongWeekEnd.isNullOrEmpty()) {
                     _dataModelLongWeekEnd.value = ModelDataLongWeekEnd(error = true)
                 }
-                Log.d(
-                    "MyLog",
-                    "_dataModelLongWeekEnd=${_dataModelLongWeekEnd.value?.listDataLongWeekEnd} null=${_dataModelLongWeekEnd.value?.listDataLongWeekEnd.isNullOrEmpty()}"
-                )
             } catch (e: Exception) {
                 _dataModelLongWeekEnd.value = ModelDataLongWeekEnd(error = true)
             }
@@ -165,10 +165,11 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _dataModelHoliday.value = ModelDataHoliday(loading = true)
-                val temp = repository.getHoliday(year, _mapCountry[selectedCountry] ?: "")
+                val temp = repository.getHoliday(year, _mapCountry[selectedCountryName] ?: "")
                     .map {
                         DataHoliday(
                             date = (it.date.split("-").reversed().joinToString("-")).getDay(),
+                            dateLocalDate = LocalDate.parse(it.date),
                             localName = it.localName,
                             name = it.name,
                             countryCode = it.countryCode,
@@ -182,10 +183,6 @@ class MainViewModel @Inject constructor(
                 if (_dataModelHoliday.value?.listDataHoliday.isNullOrEmpty()) {
                     _dataModelHoliday.value = ModelDataHoliday(error = true)
                 }
-                Log.d(
-                    "MyLog",
-                    "_dataModelHoliday=${_dataModelHoliday.value?.listDataHoliday} null=${_dataModelHoliday.value?.listDataHoliday.isNullOrEmpty()}"
-                )
             } catch (e: Exception) {
                 _dataModelHoliday.value = ModelDataHoliday(error = true)
             }
@@ -200,30 +197,38 @@ class MainViewModel @Inject constructor(
                     .map {
                         DataHoliday(
                             date = (it.date.split("-").reversed().joinToString("-")),
+                            dateLocalDate = LocalDate.parse(it.date),
                             localName = it.localName,
                             name = it.name,
                             countryCode = _mapCode[it.countryCode] ?: "", //название страны
                             types = it.types
                         )
                     }
-
                 _dataModelNextHoliday.value = ModelDataHoliday(
                     listDataHoliday = temp
                 )
                 if (_dataModelNextHoliday.value?.listDataHoliday.isNullOrEmpty()) {
                     _dataModelNextHoliday.value = ModelDataHoliday(error = true)
                 }
-                Log.d(
-                    "MyLog",
-                    "_dataModelNextHoliday=${_dataModelNextHoliday.value?.listDataHoliday} null=${_dataModelNextHoliday.value?.listDataHoliday.isNullOrEmpty()}"
-                )
             } catch (e: Exception) {
                 _dataModelHoliday.value = ModelDataHoliday(error = true)
             }
         }
     }
 
-    fun setLongWeekEndYear(year:String) {
+    fun setLongWeekEndYear(year: String) {
         _longWeekEndYear.value = year
+    }
+
+    fun setPublicHolidayYear(year: String) {
+        _publicHolidayYear.value = year
+    }
+
+    fun setAlarm() {
+        repository.setAlarm()
+    }
+
+    fun cancelAlarm() {
+        repository.cancelAlarm()
     }
 }
